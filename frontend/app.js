@@ -152,6 +152,9 @@ function renderView(view) {
   if (view === 'dashboard') renderDashboard(app);
   else if (view === 'courses') renderCourses(app);
   else if (view === 'course-detail') renderCourseDetail(app, currentCourseId);
+  else if (view === 'schedule') renderSchedule(app);
+  else if (view === 'grades') renderGradeReport(app);
+  else if (view === 'exams') renderExamCalendar(app);
   else if (view === 'gpa') renderGPA(app);
   else if (view === 'profile') renderProfile(app);
 }
@@ -922,6 +925,230 @@ async function loadGPA(semester = '') {
           }).join('')}
         </tbody>
       </table>
+    </div>
+  `;
+}
+async function renderSchedule(app) {
+  const res = await apiFetch('/courses');
+  const courses = res.data || [];
+
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+  const schedule = courses.map((course, index) => ({
+    courseCode: course.code,
+    courseName: course.name,
+    instructor: course.instructor || 'Academic Staff',
+    day: days[index % days.length],
+    time: `${9 + (index % 5)}:00 - ${10 + (index % 5)}:50`,
+    room: `B-${201 + index}`
+  }));
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Weekly Course Schedule</h2>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Course</th>
+              <th>Code</th>
+              <th>Instructor</th>
+              <th>Room</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${
+              schedule.length === 0
+                ? `
+                  <tr>
+                    <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">
+                      No course schedule available.
+                    </td>
+                  </tr>
+                `
+                : schedule.map(item => `
+                  <tr>
+                    <td><strong>${item.day}</strong></td>
+                    <td>${item.time}</td>
+                    <td>${item.courseName}</td>
+                    <td><span class="course-code">${item.courseCode}</span></td>
+                    <td>${item.instructor}</td>
+                    <td>${item.room}</td>
+                  </tr>
+                `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+async function renderGradeReport(app) {
+  const res = await apiFetch('/grades/gpa');
+  const data = res.data || {};
+  const details = data.details || [];
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Grade Report</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cumulative GPA</div>
+        <div class="stat-value">${data.gpa != null ? data.gpa.toFixed(2) : '—'}</div>
+        <div class="stat-sub">Academic average</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total Credits</div>
+        <div class="stat-value">${data.totalCredits || 0}</div>
+        <div class="stat-sub">Calculated credits</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Successful Courses</div>
+        <div class="stat-value">${data.summary?.successfulCourses || 0}</div>
+        <div class="stat-sub">Passed successfully</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">At-Risk Courses</div>
+        <div class="stat-value">${data.summary?.atRiskCourses || 0}</div>
+        <div class="stat-sub">Need attention</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Code</th>
+              <th>Credits</th>
+              <th>Average</th>
+              <th>Letter Grade</th>
+              <th>Status</th>
+              <th>GPA Points</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${
+              details.length === 0
+                ? `
+                  <tr>
+                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">
+                      No grade records available.
+                    </td>
+                  </tr>
+                `
+                : details.map(item => {
+                  const status = item.academicStatus || getAcademicStatus(item.average);
+                  const statusClass = getStatusClass(status);
+
+                  return `
+                    <tr>
+                      <td><strong>${item.courseName}</strong></td>
+                      <td><span class="course-code">${item.courseCode}</span></td>
+                      <td>${item.credits}</td>
+                      <td>${item.average != null ? item.average.toFixed(1) : '—'}</td>
+                      <td><strong>${item.letterGrade}</strong></td>
+                      <td><span class="status-badge ${statusClass}">${status}</span></td>
+                      <td>${item.gpaPoints != null ? item.gpaPoints.toFixed(1) : '—'}</td>
+                    </tr>
+                  `;
+                }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+async function renderExamCalendar(app) {
+  const coursesRes = await apiFetch('/courses');
+  const courses = coursesRes.data || [];
+
+  const allAssignments = [];
+
+  for (const course of courses) {
+    const assignmentRes = await apiFetch(`/courses/${course.id}/assignments`);
+    const assignments = assignmentRes.data || [];
+
+    assignments.forEach(item => {
+      allAssignments.push({
+        ...item,
+        courseName: course.name,
+        courseCode: course.code
+      });
+    });
+  }
+
+  const examItems = allAssignments
+    .filter(item => item.due_date)
+    .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Exam Calendar</h2>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Course</th>
+              <th>Code</th>
+              <th>Assessment</th>
+              <th>Type</th>
+              <th>Weight</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${
+              examItems.length === 0
+                ? `
+                  <tr>
+                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">
+                      No exam or assessment dates available.
+                    </td>
+                  </tr>
+                `
+                : examItems.map(item => `
+                  <tr>
+                    <td><strong>${item.due_date}</strong></td>
+                    <td>${item.courseName}</td>
+                    <td><span class="course-code">${item.courseCode}</span></td>
+                    <td>${item.title}</td>
+                    <td><span class="badge badge-${item.type}">${item.type}</span></td>
+                    <td>${item.weight}%</td>
+                    <td>
+                      ${
+                        item.grade != null
+                          ? '<span class="status-badge pass">Completed</span>'
+                          : '<span class="status-badge conditional">Scheduled</span>'
+                      }
+                    </td>
+                  </tr>
+                `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }

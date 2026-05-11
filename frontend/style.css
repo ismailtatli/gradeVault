@@ -750,3 +750,11 @@ main {
     grid-template-columns: 1fr;
   }
 }
+.nav-links {
+  flex-wrap: wrap;
+}
+
+.table-wrapper table td,
+.table-wrapper table th {
+  white-space: nowrap;
+}
