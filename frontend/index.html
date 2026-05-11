@@ -13,23 +13,15 @@
 
   <meta
     name="keywords"
-    content="GradeVault, Academic System, University, GPA, Course Management"
+    content="GradeVault, Academic System, University, GPA, Course Management, Student Information System"
   />
 
   <meta name="author" content="Ismail Tatlı" />
 
   <link rel="stylesheet" href="style.css" />
 
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -39,84 +31,134 @@
 
 <body>
 
-  <!-- NAVBAR -->
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">🎓 GradeVault</div>
+      <p class="auth-subtitle">
+        University Academic Information & Performance Management System
+      </p>
 
-  <nav class="navbar">
-
-    <div class="nav-brand">
-      🎓 GradeVault
-    </div>
-
-    <div class="nav-links">
-
-      <button
-        class="nav-btn active"
-        data-view="dashboard"
-      >
-        Dashboard
-      </button>
-
-      <button
-        class="nav-btn"
-        data-view="courses"
-      >
-        Courses
-      </button>
-
-      <button
-        class="nav-btn"
-        data-view="gpa"
-      >
-        GPA Analytics
-      </button>
-
-    </div>
-
-  </nav>
-
-  <!-- MAIN APP -->
-
-  <main id="app"></main>
-
-  <!-- TOAST -->
-
-  <div
-    id="toast"
-    class="toast hidden"
-  ></div>
-
-  <!-- MODAL -->
-
-  <div
-    id="modal-overlay"
-    class="modal-overlay hidden"
-  >
-
-    <div class="modal">
-
-      <div class="modal-header">
-
-        <h3 id="modal-title"></h3>
-
-        <button
-          id="modal-close"
-          class="modal-close"
-        >
-          &times;
-        </button>
-
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="login-tab">Login</button>
+        <button class="auth-tab" id="register-tab">Register</button>
       </div>
 
-      <div
-        id="modal-body"
-        class="modal-body"
-      ></div>
+      <div id="auth-errors" class="form-errors" style="display:none"></div>
 
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input
+            class="form-control"
+            id="login-email"
+            type="email"
+            value="ismailtatli99@gmail.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input
+            class="form-control"
+            id="login-password"
+            type="password"
+            value="123456"
+          />
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit">
+          Login to Student Portal
+        </button>
+      </form>
+
+      <form id="register-form" class="auth-form hidden">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-control" id="register-fullname" placeholder="Ismail Tatlı" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Student Number</label>
+            <input class="form-control" id="register-student-number" placeholder="202600001" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Class Year</label>
+            <input class="form-control" id="register-class-year" placeholder="3rd Year" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <input class="form-control" id="register-department" placeholder="Computer Engineering" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">University</label>
+          <input class="form-control" id="register-university" placeholder="Istanbul Arel University" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Advisor</label>
+          <input class="form-control" id="register-advisor" placeholder="Academic Advisor" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" id="register-email" type="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-control" id="register-password" type="password" />
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit">
+          Create Student Account
+        </button>
+      </form>
     </div>
+  </section>
 
+  <section id="portal-screen" class="portal-screen hidden">
+
+    <nav class="navbar">
+      <div class="nav-brand">
+        🎓 GradeVault
+      </div>
+
+      <div class="nav-links">
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="courses">Courses</button>
+        <button class="nav-btn" data-view="gpa">GPA Analytics</button>
+        <button class="nav-btn" data-view="profile">Profile</button>
+      </div>
+
+      <button class="btn btn-secondary btn-sm" id="logout-btn">
+        Logout
+      </button>
+    </nav>
+
+    <main id="app"></main>
+
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+
+        <button id="modal-close" class="modal-close">
+          &times;
+        </button>
+      </div>
+
+      <div id="modal-body" class="modal-body"></div>
+    </div>
   </div>
-
-  <!-- SCRIPT -->
 
   <script src="app.js"></script>
 

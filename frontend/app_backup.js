@@ -2,129 +2,8 @@ const API = 'http://localhost:3000/api';
 
 let currentView = 'dashboard';
 let currentCourseId = null;
-let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  initializeAuthScreen();
-
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-
-  document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  });
-});
-
-function initializeAuthScreen() {
-  const savedUser = localStorage.getItem('gradevaultUser');
-
-  if (savedUser) {
-    currentUser = JSON.parse(savedUser);
-    showPortal();
-    return;
-  }
-
-  showAuthScreen();
-
-  document.getElementById('login-tab').addEventListener('click', () => switchAuthTab('login'));
-  document.getElementById('register-tab').addEventListener('click', () => switchAuthTab('register'));
-
-  document.getElementById('login-form').addEventListener('submit', handleLogin);
-  document.getElementById('register-form').addEventListener('submit', handleRegister);
-}
-
-function switchAuthTab(type) {
-  const loginTab = document.getElementById('login-tab');
-  const registerTab = document.getElementById('register-tab');
-  const loginForm = document.getElementById('login-form');
-  const registerForm = document.getElementById('register-form');
-  const errors = document.getElementById('auth-errors');
-
-  errors.style.display = 'none';
-
-  if (type === 'login') {
-    loginTab.classList.add('active');
-    registerTab.classList.remove('active');
-    loginForm.classList.remove('hidden');
-    registerForm.classList.add('hidden');
-  } else {
-    registerTab.classList.add('active');
-    loginTab.classList.remove('active');
-    registerForm.classList.remove('hidden');
-    loginForm.classList.add('hidden');
-  }
-}
-
-function showAuthError(errors) {
-  const errorDiv = document.getElementById('auth-errors');
-  errorDiv.textContent = Array.isArray(errors) ? errors.join(', ') : errors;
-  errorDiv.style.display = 'block';
-}
-
-async function handleLogin(e) {
-  e.preventDefault();
-
-  const data = {
-    email: document.getElementById('login-email').value,
-    password: document.getElementById('login-password').value
-  };
-
-  const res = await apiFetch('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  });
-
-  if (!res.success) {
-    showAuthError(res.errors || 'Login failed.');
-    return;
-  }
-
-  currentUser = res.data;
-  localStorage.setItem('gradevaultUser', JSON.stringify(currentUser));
-
-  showPortal();
-  showToast('Welcome to GradeVault!');
-}
-
-async function handleRegister(e) {
-  e.preventDefault();
-
-  const data = {
-    fullName: document.getElementById('register-fullname').value,
-    studentNumber: document.getElementById('register-student-number').value,
-    department: document.getElementById('register-department').value,
-    university: document.getElementById('register-university').value,
-    classYear: document.getElementById('register-class-year').value,
-    advisor: document.getElementById('register-advisor').value,
-    email: document.getElementById('register-email').value,
-    password: document.getElementById('register-password').value
-  };
-
-  const res = await apiFetch('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  });
-
-  if (!res.success) {
-    showAuthError(res.errors || 'Registration failed.');
-    return;
-  }
-
-  currentUser = res.data;
-  localStorage.setItem('gradevaultUser', JSON.stringify(currentUser));
-
-  showPortal();
-  showToast('Student account created!');
-}
-
-function showAuthScreen() {
-  document.getElementById('auth-screen').classList.remove('hidden');
-  document.getElementById('portal-screen').classList.add('hidden');
-}
-
-function showPortal() {
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('portal-screen').classList.remove('hidden');
-
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -134,16 +13,14 @@ function showPortal() {
     });
   });
 
-  document.getElementById('logout-btn').addEventListener('click', logout);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
 
   renderView('dashboard');
-}
-
-function logout() {
-  localStorage.removeItem('gradevaultUser');
-  currentUser = null;
-  location.reload();
-}
+});
 
 function renderView(view) {
   currentView = view;
@@ -153,7 +30,6 @@ function renderView(view) {
   else if (view === 'courses') renderCourses(app);
   else if (view === 'course-detail') renderCourseDetail(app, currentCourseId);
   else if (view === 'gpa') renderGPA(app);
-  else if (view === 'profile') renderProfile(app);
 }
 
 async function apiFetch(endpoint, options = {}) {
@@ -195,60 +71,6 @@ function getStatusClass(status) {
   if (status === 'Conditional Pass') return 'conditional';
   if (status === 'Successful') return 'pass';
   return 'neutral';
-}
-
-async function renderProfile(app) {
-  const res = await apiFetch('/auth/profile');
-  const profile = currentUser || res.data;
-
-  app.innerHTML = `
-    <div class="page-header">
-      <h2 class="page-title">Student Profile</h2>
-    </div>
-
-    <div class="profile-grid">
-      <div class="profile-card">
-        <div class="profile-avatar">🎓</div>
-        <h2>${profile.fullName}</h2>
-        <p>${profile.department}</p>
-        <span class="status-badge pass">${profile.classYear}</span>
-      </div>
-
-      <div class="card profile-info-card">
-        <h3>Academic Information</h3>
-
-        <div class="profile-info-row">
-          <span>Student Number</span>
-          <strong>${profile.studentNumber}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>University</span>
-          <strong>${profile.university}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Department</span>
-          <strong>${profile.department}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Class Year</span>
-          <strong>${profile.classYear}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Advisor</span>
-          <strong>${profile.advisor || 'Academic Advisor'}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Email</span>
-          <strong>${profile.email}</strong>
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 async function renderDashboard(app) {
