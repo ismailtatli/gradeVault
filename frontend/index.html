@@ -3,33 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GradeVault</title>
+
+  <title>GradeVault | Academic Information System</title>
+
+  <meta
+    name="description"
+    content="GradeVault is a university academic information and performance management system."
+  />
+
+  <meta
+    name="keywords"
+    content="GradeVault, Academic System, University, GPA, Course Management"
+  />
+
+  <meta name="author" content="Ismail Tatlı" />
+
   <link rel="stylesheet" href="style.css" />
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 </head>
+
 <body>
+
+  <!-- NAVBAR -->
+
   <nav class="navbar">
-    <div class="nav-brand">🎓 GradeVault</div>
-    <div class="nav-links">
-      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
-      <button class="nav-btn" data-view="courses">Courses</button>
-      <button class="nav-btn" data-view="gpa">GPA Calculator</button>
+
+    <div class="nav-brand">
+      🎓 GradeVault
     </div>
+
+    <div class="nav-links">
+
+      <button
+        class="nav-btn active"
+        data-view="dashboard"
+      >
+        Dashboard
+      </button>
+
+      <button
+        class="nav-btn"
+        data-view="courses"
+      >
+        Courses
+      </button>
+
+      <button
+        class="nav-btn"
+        data-view="gpa"
+      >
+        GPA Analytics
+      </button>
+
+    </div>
+
   </nav>
+
+  <!-- MAIN APP -->
 
   <main id="app"></main>
 
-  <div id="toast" class="toast hidden"></div>
+  <!-- TOAST -->
 
-  <div id="modal-overlay" class="modal-overlay hidden">
+  <div
+    id="toast"
+    class="toast hidden"
+  ></div>
+
+  <!-- MODAL -->
+
+  <div
+    id="modal-overlay"
+    class="modal-overlay hidden"
+  >
+
     <div class="modal">
+
       <div class="modal-header">
+
         <h3 id="modal-title"></h3>
-        <button id="modal-close" class="modal-close">&times;</button>
+
+        <button
+          id="modal-close"
+          class="modal-close"
+        >
+          &times;
+        </button>
+
       </div>
-      <div id="modal-body" class="modal-body"></div>
+
+      <div
+        id="modal-body"
+        class="modal-body"
+      ></div>
+
     </div>
+
   </div>
 
+  <!-- SCRIPT -->
+
   <script src="app.js"></script>
+
 </body>
 </html>
