@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const {
-  getAssignmentsByCourse, getAssignmentById,
-  createAssignment, updateAssignment, deleteAssignment
-} = require('../services/assignmentService');
+const { getAssignmentsByCourse, getAssignmentById, createAssignment, updateAssignment, deleteAssignment } = require('../services/assignmentService');
 
 /**
  * @swagger
@@ -28,9 +25,13 @@ const {
  *       200:
  *         description: List of assignments
  */
-router.get('/', (req, res) => {
-  const assignments = getAssignmentsByCourse(Number(req.params.courseId));
-  res.json({ success: true, data: assignments });
+router.get('/', async (req, res) => {
+  try {
+    const assignments = await getAssignmentsByCourse(Number(req.params.courseId));
+    res.json({ success: true, data: assignments });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -56,10 +57,14 @@ router.get('/', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.get('/:id', (req, res) => {
-  const a = getAssignmentById(Number(req.params.id));
-  if (!a) return res.status(404).json({ success: false, message: 'Assignment not found.' });
-  res.json({ success: true, data: a });
+router.get('/:id', async (req, res) => {
+  try {
+    const a = await getAssignmentById(Number(req.params.id));
+    if (!a) return res.status(404).json({ success: false, message: 'Assignment not found.' });
+    res.json({ success: true, data: a });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -101,10 +106,14 @@ router.get('/:id', (req, res) => {
  *       400:
  *         description: Validation error
  */
-router.post('/', (req, res) => {
-  const result = createAssignment(Number(req.params.courseId), req.body);
-  if (!result.success) return res.status(400).json({ success: false, errors: result.errors });
-  res.status(201).json({ success: true, id: result.id });
+router.post('/', async (req, res) => {
+  try {
+    const result = await createAssignment(Number(req.params.courseId), req.body);
+    if (!result.success) return res.status(400).json({ success: false, errors: result.errors });
+    res.status(201).json({ success: true, id: result.id });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -138,13 +147,17 @@ router.post('/', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.put('/:id', (req, res) => {
-  const result = updateAssignment(Number(req.params.id), req.body);
-  if (!result.success) {
-    const status = result.errors[0] === 'Assignment not found.' ? 404 : 400;
-    return res.status(status).json({ success: false, errors: result.errors });
+router.put('/:id', async (req, res) => {
+  try {
+    const result = await updateAssignment(Number(req.params.id), req.body);
+    if (!result.success) {
+      const status = result.errors[0] === 'Assignment not found.' ? 404 : 400;
+      return res.status(status).json({ success: false, errors: result.errors });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
-  res.json({ success: true });
 });
 
 /**
@@ -170,10 +183,14 @@ router.put('/:id', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.delete('/:id', (req, res) => {
-  const result = deleteAssignment(Number(req.params.id));
-  if (!result.success) return res.status(404).json({ success: false, errors: result.errors });
-  res.json({ success: true });
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await deleteAssignment(Number(req.params.id));
+    if (!result.success) return res.status(404).json({ success: false, errors: result.errors });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 module.exports = router;

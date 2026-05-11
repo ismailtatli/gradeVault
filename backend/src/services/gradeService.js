@@ -1,11 +1,15 @@
 const { getDb } = require('../db/database');
 
-function calculateCourseAverage(courseId) {
-  const db = getDb();
-  const assignments = db.prepare(`
+async function calculateCourseAverage(courseId) {
+  const db = await getDb();
+  const stmt = db.prepare(`
     SELECT weight, grade FROM assignments
-    WHERE course_id = ? AND grade IS NOT NULL
-  `).all(courseId);
+    WHERE course_id = $id AND grade IS NOT NULL
+  `);
+  stmt.bind({ $id: courseId });
+  const assignments = [];
+  while (stmt.step()) assignments.push(stmt.getAsObject());
+  stmt.free();
   if (assignments.length === 0) return null;
   const totalWeight = assignments.reduce((sum, a) => sum + a.weight, 0);
   if (totalWeight === 0) return null;
@@ -37,17 +41,25 @@ function gradeToGpa(average) {
   return 0.0;
 }
 
-function calculateGPA(semesterFilter = null) {
-  const db = getDb();
-  const courses = semesterFilter
-    ? db.prepare('SELECT * FROM courses WHERE semester = ?').all(semesterFilter)
-    : db.prepare('SELECT * FROM courses').all();
+async function calculateGPA(semesterFilter = null) {
+  const db = await getDb();
+  let courses = [];
+  if (semesterFilter) {
+    const stmt = db.prepare('SELECT * FROM courses WHERE semester = $s');
+    stmt.bind({ $s: semesterFilter });
+    while (stmt.step()) courses.push(stmt.getAsObject());
+    stmt.free();
+  } else {
+    const stmt = db.prepare('SELECT * FROM courses');
+    while (stmt.step()) courses.push(stmt.getAsObject());
+    stmt.free();
+  }
   if (courses.length === 0) return { gpa: null, totalCredits: 0, details: [] };
   let totalCredits = 0;
   let weightedGpaSum = 0;
   const details = [];
   for (const course of courses) {
-    const avg = calculateCourseAverage(course.id);
+    const avg = await calculateCourseAverage(course.id);
     const gpaPoints = gradeToGpa(avg);
     const letter = letterGrade(avg);
     details.push({

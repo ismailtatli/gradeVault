@@ -1,4 +1,4 @@
-const { getDb } = require('../db/database');
+const { getDb, saveDb } = require('../db/database');
 const { getCourseById } = require('./courseService');
 
 function validateAssignment(data) {
@@ -17,66 +17,79 @@ function validateAssignment(data) {
   return errors;
 }
 
-function getAssignmentsByCourse(courseId) {
-  const db = getDb();
-  return db.prepare(
-    'SELECT * FROM assignments WHERE course_id = ? ORDER BY created_at DESC'
-  ).all(courseId);
+async function getAssignmentsByCourse(courseId) {
+  const db = await getDb();
+  const stmt = db.prepare('SELECT * FROM assignments WHERE course_id = $id ORDER BY id DESC');
+  stmt.bind({ $id: courseId });
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
 }
 
-function getAssignmentById(id) {
-  const db = getDb();
-  return db.prepare('SELECT * FROM assignments WHERE id = ?').get(id);
+async function getAssignmentById(id) {
+  const db = await getDb();
+  const stmt = db.prepare('SELECT * FROM assignments WHERE id = $id');
+  stmt.bind({ $id: id });
+  const result = stmt.step() ? stmt.getAsObject() : null;
+  stmt.free();
+  return result;
 }
 
-function createAssignment(courseId, data) {
-  const course = getCourseById(courseId);
+async function createAssignment(courseId, data) {
+  const course = await getCourseById(courseId);
   if (!course) return { success: false, errors: ['Course not found.'] };
   const errors = validateAssignment(data);
   if (errors.length > 0) return { success: false, errors };
-  const db = getDb();
-  const result = db.prepare(`
-    INSERT INTO assignments (course_id, title, type, weight, grade, due_date, notes)
-    VALUES (@courseId, @title, @type, @weight, @grade, @due_date, @notes)
-  `).run({
-    courseId: Number(courseId),
-    title: data.title.trim(),
-    type: data.type,
-    weight: Number(data.weight),
-    grade: data.grade !== undefined && data.grade !== '' ? Number(data.grade) : null,
-    due_date: data.due_date || null,
-    notes: data.notes ? data.notes.trim() : null
-  });
-  return { success: true, id: result.lastInsertRowid };
+  const db = await getDb();
+  db.run(
+    `INSERT INTO assignments (course_id, title, type, weight, grade, due_date, notes)
+     VALUES ($courseId, $title, $type, $weight, $grade, $due_date, $notes)`,
+    {
+      $courseId: Number(courseId),
+      $title: data.title.trim(),
+      $type: data.type,
+      $weight: Number(data.weight),
+      $grade: data.grade !== undefined && data.grade !== '' ? Number(data.grade) : null,
+      $due_date: data.due_date || null,
+      $notes: data.notes ? data.notes.trim() : null
+    }
+  );
+  const id = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
+  saveDb();
+  return { success: true, id };
 }
 
-function updateAssignment(id, data) {
-  const existing = getAssignmentById(id);
+async function updateAssignment(id, data) {
+  const existing = await getAssignmentById(id);
   if (!existing) return { success: false, errors: ['Assignment not found.'] };
   const errors = validateAssignment(data);
   if (errors.length > 0) return { success: false, errors };
-  const db = getDb();
-  db.prepare(`
-    UPDATE assignments SET title=@title, type=@type, weight=@weight,
-    grade=@grade, due_date=@due_date, notes=@notes, updated_at=CURRENT_TIMESTAMP
-    WHERE id=@id
-  `).run({
-    id,
-    title: data.title.trim(),
-    type: data.type,
-    weight: Number(data.weight),
-    grade: data.grade !== undefined && data.grade !== '' ? Number(data.grade) : null,
-    due_date: data.due_date || null,
-    notes: data.notes ? data.notes.trim() : null
-  });
+  const db = await getDb();
+  db.run(
+    `UPDATE assignments SET title=$title, type=$type, weight=$weight,
+     grade=$grade, due_date=$due_date, notes=$notes, updated_at=CURRENT_TIMESTAMP
+     WHERE id=$id`,
+    {
+      $id: id,
+      $title: data.title.trim(),
+      $type: data.type,
+      $weight: Number(data.weight),
+      $grade: data.grade !== undefined && data.grade !== '' ? Number(data.grade) : null,
+      $due_date: data.due_date || null,
+      $notes: data.notes ? data.notes.trim() : null
+    }
+  );
+  saveDb();
   return { success: true };
 }
 
-function deleteAssignment(id) {
-  const existing = getAssignmentById(id);
+async function deleteAssignment(id) {
+  const existing = await getAssignmentById(id);
   if (!existing) return { success: false, errors: ['Assignment not found.'] };
-  const db = getDb();
-  db.prepare('DELETE FROM assignments WHERE id = ?').run(id);
+  const db = await getDb();
+  db.run('DELETE FROM assignments WHERE id = $id', { $id: id });
+  saveDb();
   return { success: true };
 }
 

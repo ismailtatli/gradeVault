@@ -20,15 +20,18 @@ const { calculateGPA, calculateCourseAverage, letterGrade } = require('../servic
  *         name: semester
  *         schema:
  *           type: string
- *         description: Filter by semester
  *     responses:
  *       200:
  *         description: GPA details
  */
-router.get('/gpa', (req, res) => {
-  const { semester } = req.query;
-  const result = calculateGPA(semester || null);
-  res.json({ success: true, data: result });
+router.get('/gpa', async (req, res) => {
+  try {
+    const { semester } = req.query;
+    const result = await calculateGPA(semester || null);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -47,9 +50,13 @@ router.get('/gpa', (req, res) => {
  *       200:
  *         description: Grade summary
  */
-router.get('/course/:courseId', (req, res) => {
-  const avg = calculateCourseAverage(Number(req.params.courseId));
-  res.json({ success: true, data: { average: avg, letterGrade: letterGrade(avg) } });
+router.get('/course/:courseId', async (req, res) => {
+  try {
+    const avg = await calculateCourseAverage(Number(req.params.courseId));
+    res.json({ success: true, data: { average: avg, letterGrade: letterGrade(avg) } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 module.exports = router;

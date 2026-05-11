@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getAllCourses, getCourseById,
-  createCourse, updateCourse, deleteCourse
-} = require('../services/courseService');
+const { getAllCourses, getCourseById, createCourse, updateCourse, deleteCourse } = require('../services/courseService');
 const { calculateCourseAverage, letterGrade } = require('../services/gradeService');
 
 /**
@@ -24,19 +21,22 @@ const { calculateCourseAverage, letterGrade } = require('../services/gradeServic
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by name, code or instructor
  *     responses:
  *       200:
  *         description: List of courses
  */
-router.get('/', (req, res) => {
-  const { search } = req.query;
-  const courses = getAllCourses(search);
-  const enriched = courses.map(c => {
-    const avg = calculateCourseAverage(c.id);
-    return { ...c, average: avg, letterGrade: letterGrade(avg) };
-  });
-  res.json({ success: true, data: enriched });
+router.get('/', async (req, res) => {
+  try {
+    const { search } = req.query;
+    const courses = await getAllCourses(search);
+    const enriched = await Promise.all(courses.map(async c => {
+      const avg = await calculateCourseAverage(c.id);
+      return { ...c, average: avg, letterGrade: letterGrade(avg) };
+    }));
+    res.json({ success: true, data: enriched });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -57,11 +57,15 @@ router.get('/', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.get('/:id', (req, res) => {
-  const course = getCourseById(Number(req.params.id));
-  if (!course) return res.status(404).json({ success: false, message: 'Course not found.' });
-  const avg = calculateCourseAverage(course.id);
-  res.json({ success: true, data: { ...course, average: avg, letterGrade: letterGrade(avg) } });
+router.get('/:id', async (req, res) => {
+  try {
+    const course = await getCourseById(Number(req.params.id));
+    if (!course) return res.status(404).json({ success: false, message: 'Course not found.' });
+    const avg = await calculateCourseAverage(course.id);
+    res.json({ success: true, data: { ...course, average: avg, letterGrade: letterGrade(avg) } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -90,14 +94,18 @@ router.get('/:id', (req, res) => {
  *                 type: string
  *     responses:
  *       201:
- *         description: Course created
+ *         description: Created
  *       400:
  *         description: Validation error
  */
-router.post('/', (req, res) => {
-  const result = createCourse(req.body);
-  if (!result.success) return res.status(400).json({ success: false, errors: result.errors });
-  res.status(201).json({ success: true, id: result.id });
+router.post('/', async (req, res) => {
+  try {
+    const result = await createCourse(req.body);
+    if (!result.success) return res.status(400).json({ success: false, errors: result.errors });
+    res.status(201).json({ success: true, id: result.id });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 /**
@@ -126,13 +134,17 @@ router.post('/', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.put('/:id', (req, res) => {
-  const result = updateCourse(Number(req.params.id), req.body);
-  if (!result.success) {
-    const status = result.errors[0] === 'Course not found.' ? 404 : 400;
-    return res.status(status).json({ success: false, errors: result.errors });
+router.put('/:id', async (req, res) => {
+  try {
+    const result = await updateCourse(Number(req.params.id), req.body);
+    if (!result.success) {
+      const status = result.errors[0] === 'Course not found.' ? 404 : 400;
+      return res.status(status).json({ success: false, errors: result.errors });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
-  res.json({ success: true });
 });
 
 /**
@@ -153,10 +165,14 @@ router.put('/:id', (req, res) => {
  *       404:
  *         description: Not found
  */
-router.delete('/:id', (req, res) => {
-  const result = deleteCourse(Number(req.params.id));
-  if (!result.success) return res.status(404).json({ success: false, errors: result.errors });
-  res.json({ success: true });
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await deleteCourse(Number(req.params.id));
+    if (!result.success) return res.status(404).json({ success: false, errors: result.errors });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 module.exports = router;
