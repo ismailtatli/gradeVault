@@ -579,3 +579,31 @@ main {
 
   border-radius: 999px;
 }
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-badge.pass {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.fail {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.conditional {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.neutral {
+  background: #e2e8f0;
+  color: #475569;
+}
