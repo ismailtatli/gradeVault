@@ -839,3 +839,18 @@ main {
     grid-template-columns: 1fr;
   }
 }
+.demo-login-info {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px dashed #c7d2fe;
+  border-radius: 14px;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.demo-login-info strong {
+  color: var(--text);
+}

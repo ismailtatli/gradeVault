@@ -4,13 +4,127 @@ let currentView = 'dashboard';
 let currentCourseId = null;
 let currentUser = null;
 
+const letterPoints = {
+  AA: 4.0,
+  BA: 3.5,
+  BB: 3.0,
+  CB: 2.5,
+  CC: 2.0,
+  DC: 1.5,
+  DD: 1.0,
+  FD: 0.5,
+  FF: 0.0
+};
+
+const academicRecord = [
+  {
+    semester: '1st Year Fall',
+    period: '2023-2024 Fall',
+    courses: [
+      { code: 'CENL160', name: 'Introduction to Computer Eng.', type: 'Z', credit: 3, ects: 3, letter: 'CC' },
+      { code: 'CENL161', name: 'Algorithms and Programming-I', type: 'Z', credit: 3, ects: 6, letter: 'CC' },
+      { code: 'MBBL002', name: 'Calculus-I', type: 'Z', credit: 5, ects: 7, letter: 'BB' },
+      { code: 'MBBL018', name: 'Physics-I', type: 'Z', credit: 5, ects: 7, letter: 'CB' },
+      { code: 'ORTL102', name: 'Introduction to Higher Education and Career Planning', type: 'Z', credit: 1, ects: 1, letter: 'S' },
+      { code: 'ORTL172', name: 'Turkish Language-I', type: 'Z', credit: 2, ects: 2, letter: 'AA' },
+      { code: 'YDLL323', name: 'Academic English-I', type: 'Z', credit: 4, ects: 4, letter: 'AA' }
+    ]
+  },
+  {
+    semester: '1st Year Spring',
+    period: '2023-2024 Spring',
+    courses: [
+      { code: 'CENL162', name: 'Algorithms and Programming-II', type: 'Z', credit: 3, ects: 6, letter: 'DD' },
+      { code: 'MBBL004', name: 'Calculus-II', type: 'Z', credit: 5, ects: 7, letter: 'CB' },
+      { code: 'MBBL008', name: 'Linear Algebra and its Applications', type: 'Z', credit: 3, ects: 4, letter: 'BB' },
+      { code: 'MBBL020', name: 'Physics-II', type: 'Z', credit: 5, ects: 7, letter: 'BB' },
+      { code: 'ORTL272', name: 'Turkish Language-II', type: 'Z', credit: 2, ects: 2, letter: 'AA' },
+      { code: 'YDLL324', name: 'Academic English-II', type: 'Z', credit: 4, ects: 4, letter: 'DD' }
+    ]
+  },
+  {
+    semester: '2nd Year Fall',
+    period: '2024-2025 Fall',
+    courses: [
+      { code: 'CENL201', name: 'Data Structures', type: 'Z', credit: 3, ects: 4, letter: 'CB' },
+      { code: 'LCEN203', name: 'Object Oriented Programming', type: 'Z', credit: 3, ects: 4, letter: 'BB' },
+      { code: 'EENL206', name: 'Electronics I', type: 'Z', credit: 3, ects: 4, letter: 'BA' },
+      { code: 'MBBL014', name: 'Discrete Mathematics', type: 'Z', credit: 3, ects: 4, letter: 'CB' },
+      { code: 'MBBL016', name: 'Differential Equations', type: 'Z', credit: 3, ects: 6, letter: 'BA' },
+      { code: 'MBBL209', name: 'Probability and Statistics', type: 'Z', credit: 3, ects: 6, letter: 'BB' },
+      { code: 'ORTL162', name: 'Principles of Atatürk and History of Reforms-I', type: 'Z', credit: 2, ects: 2, letter: 'BA' }
+    ]
+  },
+  {
+    semester: '2nd Year Spring',
+    period: '2024-2025 Spring',
+    courses: [
+      { code: 'BMML220', name: 'General Biology', type: 'Z', credit: 3, ects: 4, letter: 'CC' },
+      { code: 'CENL210', name: 'Software Engineering', type: 'Z', credit: 3, ects: 3, letter: 'AA' },
+      { code: 'CENL260', name: 'Computer Organization', type: 'Z', credit: 3, ects: 4, letter: 'AA' },
+      { code: 'EENL202', name: 'Introduction to Digital Design and Lab.', type: 'Z', credit: 4, ects: 5, letter: 'DC' },
+      { code: 'EENL210', name: 'Signals and Systems', type: 'Z', credit: 3, ects: 4, letter: 'CC' },
+      { code: 'MBBL010', name: 'Numerical Analysis and Its Applications', type: 'Z', credit: 3, ects: 5, letter: 'AA' },
+      { code: 'MBBL221', name: 'Quantum Physics', type: 'Z', credit: 3, ects: 3, letter: 'BB' },
+      { code: 'ORTL262', name: 'Principles of Atatürk and History of Reforms-II', type: 'Z', credit: 2, ects: 2, letter: 'BB' }
+    ]
+  },
+  {
+    semester: '3rd Year Fall',
+    period: '2025-2026 Fall',
+    courses: [
+      { code: 'LCEN301', name: 'Data Communications and Computer Networks', type: 'Z', credit: 3, ects: 5, letter: 'CC' },
+      { code: 'LCEN303', name: 'Database Management Systems', type: 'Z', credit: 3, ects: 5, letter: 'DC' },
+      { code: 'LCEN361', name: 'Operating Systems', type: 'Z', credit: 3, ects: 5, letter: 'AA' },
+      { code: 'LEEN311', name: 'Microprocessors and Lab.', type: 'Z', credit: 3, ects: 5, letter: 'CC' },
+      { code: 'LCEN370', name: 'Applied Data Science', type: 'S', credit: 2, ects: 5, letter: 'CC' },
+      { code: 'LEEN364', name: 'Deep Learning and Classification Techniques', type: 'S', credit: 2, ects: 5, letter: 'DD' }
+    ]
+  },
+  {
+    semester: '3rd Year Spring',
+    period: '2025-2026 Spring',
+    courses: [
+      { code: 'LCEN353', name: 'Software Requirement Analysis', type: 'S', credit: 2, ects: 5, letter: '--' },
+      { code: 'LCEN362', name: 'Web Programming', type: 'Z', credit: 3, ects: 5, letter: '--' },
+      { code: 'LCEN376', name: 'System Analysis and Design', type: 'Z', credit: 3, ects: 5, letter: '--' },
+      { code: 'LCEN355', name: 'Computer Graphics', type: 'S', credit: 2, ects: 5, letter: '--' },
+      { code: 'LEEN350', name: 'Image Processing and Lab.', type: 'S', credit: 2, ects: 5, letter: '--' },
+      { code: 'LEEN354', name: 'Communications Theory-II', type: 'S', credit: 2, ects: 5, letter: '--' }
+    ]
+  },
+  {
+    semester: '4th Year Fall',
+    period: '2026-2027 Fall',
+    courses: [
+      { code: 'LCEN467', name: 'Data Mining', type: 'Z', credit: 3, ects: 5, letter: '--' },
+      { code: 'LMMF400', name: 'Interdisciplinary Project', type: 'Z', credit: 2, ects: 4, letter: '--' },
+      { code: 'LYET401', name: '21st Century Skills', type: 'Z', credit: 2, ects: 3, letter: '--' },
+      { code: 'LCEN470', name: 'Cloud Computing', type: 'S', credit: 2, ects: 5, letter: '--' },
+      { code: 'UNISEC1', name: 'Entrepreneurship and Innovation', type: 'S', credit: 2, ects: 3, letter: '--' }
+    ]
+  },
+  {
+    semester: '4th Year Spring',
+    period: '2026-2027 Spring',
+    courses: [
+      { code: 'LCEN400', name: 'Professional Training', type: 'Z', credit: 0, ects: 9, letter: '--' },
+      { code: 'LCEN462', name: 'Graduation Project', type: 'Z', credit: 1, ects: 8, letter: '--' },
+      { code: 'LCEN472', name: 'Software Project Management', type: 'S', credit: 2, ects: 5, letter: '--' },
+      { code: 'UNISEC2', name: 'Business Communication', type: 'S', credit: 2, ects: 3, letter: '--' }
+    ]
+  }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
   initializeAuthScreen();
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
 
   document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
+    if (e.target === document.getElementById('modal-overlay')) {
+      closeModal();
+    }
   });
 });
 
@@ -27,7 +141,6 @@ function initializeAuthScreen() {
 
   document.getElementById('login-tab').addEventListener('click', () => switchAuthTab('login'));
   document.getElementById('register-tab').addEventListener('click', () => switchAuthTab('register'));
-
   document.getElementById('login-form').addEventListener('submit', handleLogin);
   document.getElementById('register-form').addEventListener('submit', handleRegister);
 }
@@ -154,7 +267,9 @@ function renderView(view) {
   else if (view === 'course-detail') renderCourseDetail(app, currentCourseId);
   else if (view === 'schedule') renderSchedule(app);
   else if (view === 'grades') renderGradeReport(app);
+  else if (view === 'semesterAverages') renderSemesterAverages(app);
   else if (view === 'transcript') renderTranscript(app);
+  else if (view === 'attendance') renderAttendance(app);
   else if (view === 'exams') renderExamCalendar(app);
   else if (view === 'gpa') renderGPA(app);
   else if (view === 'profile') renderProfile(app);
@@ -173,7 +288,6 @@ function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = `toast ${type}`;
-
   setTimeout(() => t.classList.add('hidden'), 3000);
 }
 
@@ -198,264 +312,191 @@ function getStatusClass(status) {
   if (status === 'At Risk') return 'fail';
   if (status === 'Conditional Pass') return 'conditional';
   if (status === 'Successful') return 'pass';
+  if (status === 'Warning') return 'conditional';
+  if (status === 'Regular') return 'pass';
   return 'neutral';
 }
 
-async function renderProfile(app) {
-  const res = await apiFetch('/auth/profile');
-  const profile = currentUser || res.data;
-
-  app.innerHTML = `
-    <div class="page-header">
-      <h2 class="page-title">Student Profile</h2>
-    </div>
-
-    <div class="profile-grid">
-      <div class="profile-card">
-        <div class="profile-avatar">🎓</div>
-        <h2>${profile.fullName}</h2>
-        <p>${profile.department}</p>
-        <span class="status-badge pass">${profile.classYear}</span>
-      </div>
-
-      <div class="card profile-info-card">
-        <h3>Academic Information</h3>
-
-        <div class="profile-info-row">
-          <span>Student Number</span>
-          <strong>${profile.studentNumber}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>University</span>
-          <strong>${profile.university}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Department</span>
-          <strong>${profile.department}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Class Year</span>
-          <strong>${profile.classYear}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Advisor</span>
-          <strong>${profile.advisor || 'Academic Advisor'}</strong>
-        </div>
-
-        <div class="profile-info-row">
-          <span>Email</span>
-          <strong>${profile.email}</strong>
-        </div>
-      </div>
-    </div>
-  `;
+function getAllAcademicCourses() {
+  return academicRecord.flatMap(section =>
+    section.courses.map(course => ({
+      ...course,
+      semester: section.semester,
+      period: section.period
+    }))
+  );
 }
 
-async function renderDashboard(app) {
+function calculateSemesterSummary(section) {
+  const graded = section.courses.filter(c => letterPoints[c.letter] !== undefined);
+  const allCredits = section.courses.reduce((sum, c) => sum + c.credit, 0);
+  const credits = graded.reduce((sum, c) => sum + c.credit, 0);
+  const ects = section.courses.reduce((sum, c) => sum + c.ects, 0);
+  const weighted = graded.reduce((sum, c) => sum + letterPoints[c.letter] * c.credit, 0);
+  const gpa = credits > 0 ? Math.round((weighted / credits) * 100) / 100 : null;
+
+  return {
+    courseCount: section.courses.length,
+    allCredits,
+    credits,
+    ects,
+    gpa,
+    successful: graded.filter(c => ['AA', 'BA', 'BB', 'CB', 'CC'].includes(c.letter)).length,
+    conditional: graded.filter(c => ['DC', 'DD'].includes(c.letter)).length,
+    atRisk: graded.filter(c => ['FD', 'FF'].includes(c.letter)).length
+  };
+}
+
+function calculateCumulativeSummary() {
+  const allCourses = getAllAcademicCourses();
+  const graded = allCourses.filter(c => letterPoints[c.letter] !== undefined);
+  const credits = graded.reduce((sum, c) => sum + c.credit, 0);
+  const ects = allCourses.reduce((sum, c) => sum + c.ects, 0);
+  const weighted = graded.reduce((sum, c) => sum + letterPoints[c.letter] * c.credit, 0);
+  const gpa = credits > 0 ? Math.round((weighted / credits) * 100) / 100 : null;
+
+  return {
+    credits,
+    ects,
+    gpa,
+    courseCount: allCourses.length,
+    gradedCourseCount: graded.length
+  };
+}
+
+function renderDashboard(app) {
+  const summary = calculateCumulativeSummary();
+  const currentSemester = academicRecord.find(s => s.semester === '3rd Year Spring');
+  const currentCourses = currentSemester.courses;
+
   app.innerHTML = `
-    <div class="stats-grid" id="stats"></div>
-    <div id="recent-courses"></div>
-  `;
-
-  const [coursesRes, gpaRes] = await Promise.all([
-    apiFetch('/courses'),
-    apiFetch('/grades/gpa')
-  ]);
-
-  const courses = coursesRes.data || [];
-  const gpaData = gpaRes.data || {};
-  const graded = gpaData.details ? gpaData.details.filter(d => d.average !== null) : [];
-
-  const successfulCourses =
-    gpaData.summary?.successfulCourses ??
-    graded.filter(d => getAcademicStatus(d.average) === 'Successful').length;
-
-  const conditionalCourses =
-    gpaData.summary?.conditionalCourses ??
-    graded.filter(d => getAcademicStatus(d.average) === 'Conditional Pass').length;
-
-  const atRiskCourses =
-    gpaData.summary?.atRiskCourses ??
-    graded.filter(d => getAcademicStatus(d.average) === 'At Risk').length;
-
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Total Courses</div>
-      <div class="stat-value">${courses.length}</div>
-      <div class="stat-sub">Registered courses</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Overall GPA</div>
-      <div class="stat-value">${gpaData.gpa != null ? gpaData.gpa.toFixed(2) : '—'}</div>
-      <div class="stat-sub">Out of 4.00</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Academic Risk</div>
-      <div class="stat-value">${atRiskCourses}</div>
-      <div class="stat-sub">Courses need attention</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Academic Standing</div>
-      <div class="stat-value">${successfulCourses}</div>
-      <div class="stat-sub">${conditionalCourses} conditional courses</div>
-    </div>
-  `;
-
-  const recentDiv = document.getElementById('recent-courses');
-  recentDiv.innerHTML = `
-    <div class="page-header">
-      <h2 class="page-title">My Courses</h2>
-    </div>
-  `;
-
-  if (courses.length === 0) {
-    recentDiv.innerHTML += `
-      <div class="empty-state">
-        <div class="empty-state-icon">📚</div>
-        <p>No courses yet. Go to Courses tab to add one.</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Active Courses</div>
+        <div class="stat-value">${currentCourses.length}</div>
+        <div class="stat-sub">2025-2026 Spring</div>
       </div>
-    `;
-    return;
-  }
 
-  const grid = document.createElement('div');
-  grid.className = 'course-grid';
-  grid.innerHTML = courses.map(c => courseCardHTML(c)).join('');
-  recentDiv.appendChild(grid);
+      <div class="stat-card">
+        <div class="stat-label">Cumulative GPA</div>
+        <div class="stat-value">${summary.gpa.toFixed(2)}</div>
+        <div class="stat-sub">Calculated from completed courses</div>
+      </div>
 
-  bindCourseCardEvents(recentDiv);
+      <div class="stat-card">
+        <div class="stat-label">Completed Credits</div>
+        <div class="stat-value">${summary.credits}</div>
+        <div class="stat-sub">Transcript credit total</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Academic Standing</div>
+        <div class="stat-value" style="font-size:1.35rem">Good Standing</div>
+        <div class="stat-sub">No failed active course</div>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <h2 class="page-title">Current Semester Courses</h2>
+    </div>
+
+    <div class="course-grid">
+      ${currentCourses.map(course => `
+        <div class="course-card">
+          <div class="course-card-header">
+            <div>
+              <span class="course-code">${course.code}</span>
+              <div class="course-name" style="margin-top:0.5rem">${course.name}</div>
+              <div class="course-meta">2025-2026 Spring · ${course.ects} ECTS</div>
+            </div>
+            <div class="grade-badge">${course.letter}</div>
+          </div>
+          <div class="status-badge neutral">In Progress</div>
+          <div class="course-footer">
+            <span>${course.credit} credits</span>
+            <span>${course.type === 'Z' ? 'Required' : 'Elective'}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 async function renderCourses(app) {
+  const courses = getAllAcademicCourses();
+
   app.innerHTML = `
     <div class="page-header">
-      <h2 class="page-title">Courses</h2>
-      <button class="btn btn-primary" id="add-course-btn">+ Add Course</button>
+      <h2 class="page-title">Curriculum Courses</h2>
+      <button class="btn btn-primary" id="add-course-btn">+ Add Custom Course</button>
     </div>
 
     <div class="search-bar">
-      <input class="search-input" id="course-search" type="text" placeholder="Search by name, code or instructor..." />
+      <input class="search-input" id="course-search" type="text" placeholder="Search by course code or name..." />
     </div>
 
-    <div class="course-grid" id="course-list">Loading...</div>
+    <div class="course-grid" id="course-list">
+      ${courses.map(c => courseCardHTML({
+        id: c.code,
+        code: c.code,
+        name: c.name,
+        instructor: c.type === 'Z' ? 'Required Course' : 'Elective Course',
+        semester: c.period,
+        credits: c.credit,
+        average: null,
+        letterGrade: c.letter
+      })).join('')}
+    </div>
   `;
 
   document.getElementById('add-course-btn').addEventListener('click', () => openCourseForm());
-  document.getElementById('course-search').addEventListener('input', e => loadCourses(e.target.value));
 
-  await loadCourses('');
-}
+  document.getElementById('course-search').addEventListener('input', e => {
+    const keyword = e.target.value.toLowerCase();
 
-async function loadCourses(search = '') {
-  const res = await apiFetch(`/courses?search=${encodeURIComponent(search)}`);
-  const list = document.getElementById('course-list');
+    const filtered = courses.filter(c =>
+      c.code.toLowerCase().includes(keyword) ||
+      c.name.toLowerCase().includes(keyword)
+    );
 
-  if (!list) return;
-
-  const courses = res.data || [];
-
-  if (courses.length === 0) {
-    list.innerHTML = `
-      <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-state-icon">🔍</div>
-        <p>No courses found.</p>
-      </div>
-    `;
-    return;
-  }
-
-  list.innerHTML = courses.map(c => courseCardHTML(c)).join('');
-  bindCourseCardEvents(list);
+    document.getElementById('course-list').innerHTML = filtered.map(c => courseCardHTML({
+      id: c.code,
+      code: c.code,
+      name: c.name,
+      instructor: c.type === 'Z' ? 'Required Course' : 'Elective Course',
+      semester: c.period,
+      credits: c.credit,
+      average: null,
+      letterGrade: c.letter
+    })).join('');
+  });
 }
 
 function courseCardHTML(c) {
-  const avg = c.average;
-  const status = c.academicStatus || getAcademicStatus(avg);
-  const statusClass = getStatusClass(status);
-
-  let badgeClass = '';
-
-  if (avg != null) {
-    badgeClass = avg >= 50 ? 'pass' : 'fail';
-  }
-
   return `
     <div class="course-card" data-id="${c.id}">
       <div class="course-card-header">
         <div>
           <span class="course-code">${c.code}</span>
           <div class="course-name" style="margin-top:0.5rem">${c.name}</div>
-          <div class="course-meta">${c.instructor || 'No instructor'} · ${c.semester}</div>
+          <div class="course-meta">${c.instructor || 'Academic Staff'} · ${c.semester}</div>
         </div>
 
-        <div class="grade-badge ${badgeClass}">
-          ${avg != null ? c.letterGrade : '—'}
-        </div>
+        <div class="grade-badge">${c.letterGrade || '—'}</div>
       </div>
 
-      ${
-        avg != null
-          ? `
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:${avg}%"></div>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem">
-              ${avg.toFixed(1)} / 100
-            </div>
-            <div class="status-badge ${statusClass}" style="margin-top:0.75rem">
-              ${status}
-            </div>
-          `
-          : `
-            <div style="font-size:0.8rem;color:var(--text-muted)">No grades yet</div>
-            <div class="status-badge neutral" style="margin-top:0.75rem">No Grade</div>
-          `
-      }
+      <div class="status-badge ${c.letterGrade === '--' ? 'neutral' : 'pass'}" style="margin-top:0.75rem">
+        ${c.letterGrade === '--' ? 'In Progress' : 'Completed'}
+      </div>
 
       <div class="course-footer">
         <span style="font-size:0.8rem;color:var(--text-muted)">${c.credits} credits</span>
-
-        <div style="display:flex;gap:0.4rem">
-          <button class="btn btn-secondary btn-sm edit-course-btn" data-id="${c.id}">Edit</button>
-          <button class="btn btn-danger btn-sm delete-course-btn" data-id="${c.id}">Delete</button>
-        </div>
       </div>
     </div>
   `;
 }
 
-function bindCourseCardEvents(container) {
-  container.querySelectorAll('.course-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.btn')) return;
-
-      currentCourseId = Number(card.dataset.id);
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      renderView('course-detail');
-    });
-  });
-
-  container.querySelectorAll('.edit-course-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      openCourseForm(Number(btn.dataset.id));
-    });
-  });
-
-  container.querySelectorAll('.delete-course-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      deleteCourse(Number(btn.dataset.id));
-    });
-  });
-}
+function bindCourseCardEvents() {}
 
 function openCourseForm(id = null) {
   const isEdit = id !== null;
@@ -471,14 +512,14 @@ function openCourseForm(id = null) {
 
       <div class="form-group">
         <label class="form-label">Course Code *</label>
-        <input class="form-control" id="f-code" placeholder="e.g. CSE201" />
+        <input class="form-control" id="f-code" placeholder="e.g. CENL201" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Credits *</label>
-        <input class="form-control" id="f-credits" type="number" min="1" placeholder="3" />
+        <input class="form-control" id="f-credits" type="number" min="0" placeholder="3" />
       </div>
 
       <div class="form-group">
@@ -494,455 +535,44 @@ function openCourseForm(id = null) {
 
     <div class="form-actions">
       <button class="btn btn-secondary" id="form-cancel">Cancel</button>
-      <button class="btn btn-primary" id="form-submit">${isEdit ? 'Update Course' : 'Add Course'}</button>
+      <button class="btn btn-primary" id="form-submit">Save Course</button>
     </div>
   `);
 
   document.getElementById('form-cancel').addEventListener('click', closeModal);
 
-  if (isEdit) {
-    apiFetch(`/courses/${id}`).then(res => {
-      const c = res.data;
-
-      document.getElementById('f-name').value = c.name;
-      document.getElementById('f-code').value = c.code;
-      document.getElementById('f-credits').value = c.credits;
-      document.getElementById('f-semester').value = c.semester;
-      document.getElementById('f-instructor').value = c.instructor || '';
-    });
-  }
-
-  document.getElementById('form-submit').addEventListener('click', async () => {
-    const data = {
-      name: document.getElementById('f-name').value,
-      code: document.getElementById('f-code').value,
-      credits: document.getElementById('f-credits').value,
-      semester: document.getElementById('f-semester').value,
-      instructor: document.getElementById('f-instructor').value
-    };
-
-    const errDiv = document.getElementById('form-errors');
-
-    const res = await apiFetch(isEdit ? `/courses/${id}` : '/courses', {
-      method: isEdit ? 'PUT' : 'POST',
-      body: JSON.stringify(data)
-    });
-
-    if (!res.success) {
-      errDiv.textContent = res.errors.join(', ');
-      errDiv.style.display = 'block';
-      return;
-    }
-
+  document.getElementById('form-submit').addEventListener('click', () => {
     closeModal();
-    showToast(isEdit ? 'Course updated!' : 'Course added!');
-    loadCourses('');
+    showToast('Demo course form saved locally.');
   });
 }
 
-async function deleteCourse(id) {
-  if (!confirm('Delete this course and all its assignments?')) return;
+function deleteCourse() {}
 
-  const res = await apiFetch(`/courses/${id}`, {
-    method: 'DELETE'
-  });
-
-  if (res.success) {
-    showToast('Course deleted.', 'error');
-    loadCourses('');
-  }
-}
-
-async function renderCourseDetail(app, courseId) {
-  app.innerHTML = `<p style="color:var(--text-muted);padding:2rem">Loading...</p>`;
-
-  const [courseRes, assignRes] = await Promise.all([
-    apiFetch(`/courses/${courseId}`),
-    apiFetch(`/courses/${courseId}/assignments`)
-  ]);
-
-  const course = courseRes.data;
-  const assignments = assignRes.data || [];
-
-  const status = course.academicStatus || getAcademicStatus(course.average);
-  const statusClass = getStatusClass(status);
-
+function renderCourseDetail(app) {
   app.innerHTML = `
-    <button class="back-btn" id="back-btn">← Back to Courses</button>
-
-    <div class="page-header">
-      <div>
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem">
-          <span class="course-code">${course.code}</span>
-          <h2 class="page-title">${course.name}</h2>
-        </div>
-
-        <div style="font-size:0.9rem;color:var(--text-muted)">
-          ${course.instructor || 'No instructor'} · ${course.semester} · ${course.credits} credits
-        </div>
-      </div>
-
-      <button class="btn btn-primary" id="add-assignment-btn">+ Add Assignment</button>
-    </div>
-
-    <div class="stats-grid" style="margin-bottom:1.5rem">
-      <div class="stat-card">
-        <div class="stat-label">Current Average</div>
-        <div class="stat-value">${course.average != null ? course.average.toFixed(1) : '—'}</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Letter Grade</div>
-        <div class="stat-value">${course.letterGrade || '—'}</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Academic Status</div>
-        <div class="stat-value" style="font-size:1.35rem">${status}</div>
-        <div class="status-badge ${statusClass}" style="margin-top:0.5rem">${status}</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Assignments</div>
-        <div class="stat-value">${assignments.length}</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Weight</th>
-              <th>Grade</th>
-              <th>Due Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody id="assignment-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('back-btn').addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.view === 'courses');
-    });
-
-    renderView('courses');
-  });
-
-  document.getElementById('add-assignment-btn').addEventListener('click', () => openAssignmentForm(courseId));
-
-  renderAssignmentRows(assignments, courseId);
-}
-
-function renderAssignmentRows(assignments, courseId) {
-  const tbody = document.getElementById('assignment-tbody');
-
-  if (!tbody) return;
-
-  if (assignments.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">
-          No assignments yet.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = assignments.map(a => `
-    <tr>
-      <td>
-        <strong>${a.title}</strong>
-        ${a.notes ? `<br><span style="font-size:0.75rem;color:var(--text-muted)">${a.notes}</span>` : ''}
-      </td>
-
-      <td><span class="badge badge-${a.type}">${a.type}</span></td>
-      <td>${a.weight}%</td>
-      <td>${a.grade != null ? `<strong>${a.grade}</strong>` : '<span style="color:var(--text-muted)">—</span>'}</td>
-      <td>${a.due_date || '—'}</td>
-
-      <td style="display:flex;gap:0.4rem">
-        <button class="btn btn-secondary btn-sm edit-a-btn" data-id="${a.id}">Edit</button>
-        <button class="btn btn-danger btn-sm delete-a-btn" data-id="${a.id}">Delete</button>
-      </td>
-    </tr>
-  `).join('');
-
-  tbody.querySelectorAll('.edit-a-btn').forEach(btn => {
-    btn.addEventListener('click', () => openAssignmentForm(courseId, Number(btn.dataset.id)));
-  });
-
-  tbody.querySelectorAll('.delete-a-btn').forEach(btn => {
-    btn.addEventListener('click', () => deleteAssignment(courseId, Number(btn.dataset.id)));
-  });
-}
-
-function openAssignmentForm(courseId, id = null) {
-  const isEdit = id !== null;
-
-  openModal(isEdit ? 'Edit Assignment' : 'Add Assignment', `
-    <div id="form-errors" class="form-errors" style="display:none"></div>
-
-    <div class="form-group">
-      <label class="form-label">Title *</label>
-      <input class="form-control" id="a-title" placeholder="e.g. Midterm Exam" />
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Type *</label>
-        <select class="form-control" id="a-type">
-          <option value="">Select type</option>
-          <option value="exam">Exam</option>
-          <option value="assignment">Assignment</option>
-          <option value="quiz">Quiz</option>
-          <option value="project">Project</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Weight (%) *</label>
-        <input class="form-control" id="a-weight" type="number" min="1" max="100" placeholder="40" />
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Grade (0-100)</label>
-        <input class="form-control" id="a-grade" type="number" min="0" max="100" placeholder="Leave empty if not graded" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Due Date</label>
-        <input class="form-control" id="a-due" type="date" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Notes</label>
-      <input class="form-control" id="a-notes" placeholder="Optional notes" />
-    </div>
-
-    <div class="form-actions">
-      <button class="btn btn-secondary" id="form-cancel">Cancel</button>
-      <button class="btn btn-primary" id="form-submit">${isEdit ? 'Update' : 'Add Assignment'}</button>
-    </div>
-  `);
-
-  document.getElementById('form-cancel').addEventListener('click', closeModal);
-
-  if (isEdit) {
-    apiFetch(`/courses/${courseId}/assignments/${id}`).then(res => {
-      const a = res.data;
-
-      document.getElementById('a-title').value = a.title;
-      document.getElementById('a-type').value = a.type;
-      document.getElementById('a-weight').value = a.weight;
-      document.getElementById('a-grade').value = a.grade != null ? a.grade : '';
-      document.getElementById('a-due').value = a.due_date || '';
-      document.getElementById('a-notes').value = a.notes || '';
-    });
-  }
-
-  document.getElementById('form-submit').addEventListener('click', async () => {
-    const data = {
-      title: document.getElementById('a-title').value,
-      type: document.getElementById('a-type').value,
-      weight: document.getElementById('a-weight').value,
-      grade: document.getElementById('a-grade').value,
-      due_date: document.getElementById('a-due').value,
-      notes: document.getElementById('a-notes').value
-    };
-
-    const errDiv = document.getElementById('form-errors');
-
-    const endpoint = isEdit
-      ? `/courses/${courseId}/assignments/${id}`
-      : `/courses/${courseId}/assignments`;
-
-    const res = await apiFetch(endpoint, {
-      method: isEdit ? 'PUT' : 'POST',
-      body: JSON.stringify(data)
-    });
-
-    if (!res.success) {
-      errDiv.textContent = res.errors.join(', ');
-      errDiv.style.display = 'block';
-      return;
-    }
-
-    closeModal();
-    showToast(isEdit ? 'Assignment updated!' : 'Assignment added!');
-    renderView('course-detail');
-  });
-}
-
-async function deleteAssignment(courseId, id) {
-  if (!confirm('Delete this assignment?')) return;
-
-  const res = await apiFetch(`/courses/${courseId}/assignments/${id}`, {
-    method: 'DELETE'
-  });
-
-  if (res.success) {
-    showToast('Assignment deleted.', 'error');
-    renderView('course-detail');
-  }
-}
-
-async function renderGPA(app) {
-  app.innerHTML = `<p style="color:var(--text-muted)">Loading...</p>`;
-
-  const semesters = await getSemesters();
-
-  app.innerHTML = `
-    <div class="page-header">
-      <h2 class="page-title">GPA Analytics</h2>
-    </div>
-
-    <div class="filter-row">
-      <span class="filter-label">Filter by semester:</span>
-
-      <select class="form-control" id="semester-filter" style="width:auto">
-        <option value="">All Semesters</option>
-        ${semesters.map(s => `<option value="${s}">${s}</option>`).join('')}
-      </select>
-    </div>
-
-    <div class="stats-grid" id="gpa-stats"></div>
-    <div class="card" id="gpa-details" style="margin-top:1.5rem"></div>
-  `;
-
-  document.getElementById('semester-filter').addEventListener('change', e => loadGPA(e.target.value));
-
-  await loadGPA('');
-}
-
-async function getSemesters() {
-  const res = await apiFetch('/courses');
-  const courses = res.data || [];
-
-  return [...new Set(courses.map(c => c.semester))];
-}
-
-async function loadGPA(semester = '') {
-  const endpoint = semester
-    ? `/grades/gpa?semester=${encodeURIComponent(semester)}`
-    : '/grades/gpa';
-
-  const res = await apiFetch(endpoint);
-  const data = res.data || {};
-  const details = data.details || [];
-
-  const successfulCourses =
-    data.summary?.successfulCourses ??
-    details.filter(d => getAcademicStatus(d.average) === 'Successful').length;
-
-  const conditionalCourses =
-    data.summary?.conditionalCourses ??
-    details.filter(d => getAcademicStatus(d.average) === 'Conditional Pass').length;
-
-  const atRiskCourses =
-    data.summary?.atRiskCourses ??
-    details.filter(d => getAcademicStatus(d.average) === 'At Risk').length;
-
-  document.getElementById('gpa-stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Overall GPA</div>
-      <div class="stat-value">${data.gpa != null ? data.gpa.toFixed(2) : '—'}</div>
-      <div class="stat-sub">out of 4.00</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Total Credits</div>
-      <div class="stat-value">${data.totalCredits || 0}</div>
-      <div class="stat-sub">Completed credit load</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Successful Courses</div>
-      <div class="stat-value">${successfulCourses}</div>
-      <div class="stat-sub">Good standing</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">At-Risk Courses</div>
-      <div class="stat-value">${atRiskCourses}</div>
-      <div class="stat-sub">${conditionalCourses} conditional courses</div>
-    </div>
-  `;
-
-  const detailDiv = document.getElementById('gpa-details');
-
-  if (details.length === 0) {
-    detailDiv.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">📊</div>
-        <p>No courses found.</p>
-      </div>
-    `;
-    return;
-  }
-
-  detailDiv.innerHTML = `
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Course</th>
-            <th>Code</th>
-            <th>Credits</th>
-            <th>Average</th>
-            <th>Letter</th>
-            <th>Status</th>
-            <th>GPA Points</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${details.map(d => {
-            const status = d.academicStatus || getAcademicStatus(d.average);
-            const statusClass = getStatusClass(status);
-
-            return `
-              <tr>
-                <td><strong>${d.courseName}</strong></td>
-                <td><span class="course-code">${d.courseCode}</span></td>
-                <td>${d.credits}</td>
-                <td>${d.average != null ? d.average.toFixed(1) : '—'}</td>
-                <td><strong>${d.letterGrade}</strong></td>
-                <td><span class="status-badge ${statusClass}">${status}</span></td>
-                <td>${d.gpaPoints != null ? d.gpaPoints.toFixed(1) : '—'}</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
+    <div class="empty-state">
+      <div class="empty-state-icon">📚</div>
+      <p>Course details are available in the transcript and grade report modules.</p>
     </div>
   `;
 }
-async function renderSchedule(app) {
-  const res = await apiFetch('/courses');
-  const courses = res.data || [];
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+function renderAssignmentRows() {}
+function openAssignmentForm() {}
+function deleteAssignment() {}
 
-  const schedule = courses.map((course, index) => ({
-    courseCode: course.code,
-    courseName: course.name,
-    instructor: course.instructor || 'Academic Staff',
-    day: days[index % days.length],
-    time: `${9 + (index % 5)}:00 - ${10 + (index % 5)}:50`,
-    room: `B-${201 + index}`
-  }));
+function renderSchedule(app) {
+  const currentCourses = academicRecord.find(section => section.semester === '3rd Year Spring').courses;
+
+  const schedule = [
+    ['Monday', '09:00 - 10:50', currentCourses[0], 'C-204'],
+    ['Monday', '13:00 - 14:50', currentCourses[1], 'Lab-2'],
+    ['Tuesday', '10:00 - 11:50', currentCourses[2], 'B-305'],
+    ['Wednesday', '09:00 - 10:50', currentCourses[3], 'Design Studio'],
+    ['Thursday', '14:00 - 15:50', currentCourses[4], 'Lab-4'],
+    ['Friday', '11:00 - 12:50', currentCourses[5], 'A-108']
+  ];
 
   app.innerHTML = `
     <div class="page-header">
@@ -956,34 +586,24 @@ async function renderSchedule(app) {
             <tr>
               <th>Day</th>
               <th>Time</th>
-              <th>Course</th>
-              <th>Code</th>
-              <th>Instructor</th>
+              <th>Course Code</th>
+              <th>Course Name</th>
               <th>Room</th>
+              <th>Instructor</th>
             </tr>
           </thead>
 
           <tbody>
-            ${
-              schedule.length === 0
-                ? `
-                  <tr>
-                    <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">
-                      No course schedule available.
-                    </td>
-                  </tr>
-                `
-                : schedule.map(item => `
-                  <tr>
-                    <td><strong>${item.day}</strong></td>
-                    <td>${item.time}</td>
-                    <td>${item.courseName}</td>
-                    <td><span class="course-code">${item.courseCode}</span></td>
-                    <td>${item.instructor}</td>
-                    <td>${item.room}</td>
-                  </tr>
-                `).join('')
-            }
+            ${schedule.map(([day, time, course, room]) => `
+              <tr>
+                <td><strong>${day}</strong></td>
+                <td>${time}</td>
+                <td><span class="course-code">${course.code}</span></td>
+                <td>${course.name}</td>
+                <td>${room}</td>
+                <td>Academic Staff</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       </div>
@@ -991,10 +611,8 @@ async function renderSchedule(app) {
   `;
 }
 
-async function renderGradeReport(app) {
-  const res = await apiFetch('/grades/gpa');
-  const data = res.data || {};
-  const details = data.details || [];
+function renderGradeReport(app) {
+  const summary = calculateCumulativeSummary();
 
   app.innerHTML = `
     <div class="page-header">
@@ -1004,26 +622,26 @@ async function renderGradeReport(app) {
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Cumulative GPA</div>
-        <div class="stat-value">${data.gpa != null ? data.gpa.toFixed(2) : '—'}</div>
-        <div class="stat-sub">Academic average</div>
+        <div class="stat-value">${summary.gpa.toFixed(2)}</div>
+        <div class="stat-sub">Calculated from completed courses</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">Total Credits</div>
-        <div class="stat-value">${data.totalCredits || 0}</div>
-        <div class="stat-sub">Calculated credits</div>
+        <div class="stat-label">Completed Credits</div>
+        <div class="stat-value">${summary.credits}</div>
+        <div class="stat-sub">Transcript credits</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">Successful Courses</div>
-        <div class="stat-value">${data.summary?.successfulCourses || 0}</div>
-        <div class="stat-sub">Passed successfully</div>
+        <div class="stat-label">Total ECTS</div>
+        <div class="stat-value">${summary.ects}</div>
+        <div class="stat-sub">Curriculum ECTS</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">At-Risk Courses</div>
-        <div class="stat-value">${data.summary?.atRiskCourses || 0}</div>
-        <div class="stat-sub">Need attention</div>
+        <div class="stat-label">Course Count</div>
+        <div class="stat-value">${summary.courseCount}</div>
+        <div class="stat-sub">All academic records</div>
       </div>
     </div>
 
@@ -1032,43 +650,35 @@ async function renderGradeReport(app) {
         <table>
           <thead>
             <tr>
-              <th>Course</th>
+              <th>Semester</th>
               <th>Code</th>
-              <th>Credits</th>
-              <th>Average</th>
-              <th>Letter Grade</th>
+              <th>Course</th>
+              <th>Z/S</th>
+              <th>Credit</th>
+              <th>ECTS</th>
+              <th>Letter</th>
               <th>Status</th>
-              <th>GPA Points</th>
             </tr>
           </thead>
 
           <tbody>
-            ${
-              details.length === 0
-                ? `
-                  <tr>
-                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">
-                      No grade records available.
-                    </td>
-                  </tr>
-                `
-                : details.map(item => {
-                  const status = item.academicStatus || getAcademicStatus(item.average);
-                  const statusClass = getStatusClass(status);
+            ${getAllAcademicCourses().map(course => {
+              const status = course.letter === '--' ? 'In Progress' : ['DC', 'DD'].includes(course.letter) ? 'Conditional' : 'Completed';
+              const statusClass = course.letter === '--' ? 'neutral' : ['DC', 'DD'].includes(course.letter) ? 'conditional' : 'pass';
 
-                  return `
-                    <tr>
-                      <td><strong>${item.courseName}</strong></td>
-                      <td><span class="course-code">${item.courseCode}</span></td>
-                      <td>${item.credits}</td>
-                      <td>${item.average != null ? item.average.toFixed(1) : '—'}</td>
-                      <td><strong>${item.letterGrade}</strong></td>
-                      <td><span class="status-badge ${statusClass}">${status}</span></td>
-                      <td>${item.gpaPoints != null ? item.gpaPoints.toFixed(1) : '—'}</td>
-                    </tr>
-                  `;
-                }).join('')
-            }
+              return `
+                <tr>
+                  <td>${course.period}</td>
+                  <td><span class="course-code">${course.code}</span></td>
+                  <td><strong>${course.name}</strong></td>
+                  <td>${course.type}</td>
+                  <td>${course.credit}</td>
+                  <td>${course.ects}</td>
+                  <td><strong>${course.letter}</strong></td>
+                  <td><span class="status-badge ${statusClass}">${status}</span></td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
@@ -1076,28 +686,232 @@ async function renderGradeReport(app) {
   `;
 }
 
-async function renderExamCalendar(app) {
-  const coursesRes = await apiFetch('/courses');
-  const courses = coursesRes.data || [];
+function renderSemesterAverages(app) {
+  const cumulative = calculateCumulativeSummary();
 
-  const allAssignments = [];
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Semester Averages</h2>
+    </div>
 
-  for (const course of courses) {
-    const assignmentRes = await apiFetch(`/courses/${course.id}/assignments`);
-    const assignments = assignmentRes.data || [];
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cumulative GPA</div>
+        <div class="stat-value">${cumulative.gpa.toFixed(2)}</div>
+        <div class="stat-sub">General academic average</div>
+      </div>
 
-    assignments.forEach(item => {
-      allAssignments.push({
-        ...item,
-        courseName: course.name,
-        courseCode: course.code
-      });
-    });
-  }
+      <div class="stat-card">
+        <div class="stat-label">Completed Credits</div>
+        <div class="stat-value">${cumulative.credits}</div>
+        <div class="stat-sub">Successfully calculated credits</div>
+      </div>
 
-  const examItems = allAssignments
-    .filter(item => item.due_date)
-    .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+      <div class="stat-card">
+        <div class="stat-label">Total ECTS</div>
+        <div class="stat-value">${cumulative.ects}</div>
+        <div class="stat-sub">Curriculum progress</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Academic Status</div>
+        <div class="stat-value" style="font-size:1.35rem">Good Standing</div>
+        <div class="stat-sub">Based on semester records</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Semester</th>
+              <th>Period</th>
+              <th>Courses</th>
+              <th>Credits</th>
+              <th>ECTS</th>
+              <th>Semester GPA</th>
+              <th>Successful</th>
+              <th>Conditional</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${academicRecord.map(section => {
+              const s = calculateSemesterSummary(section);
+
+              return `
+                <tr>
+                  <td><strong>${section.semester}</strong></td>
+                  <td>${section.period}</td>
+                  <td>${s.courseCount}</td>
+                  <td>${s.credits}</td>
+                  <td>${s.ects}</td>
+                  <td><strong>${s.gpa != null ? s.gpa.toFixed(2) : 'In Progress'}</strong></td>
+                  <td>${s.successful}</td>
+                  <td>${s.conditional}</td>
+                  <td>${s.atRisk}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderTranscript(app) {
+  const cumulative = calculateCumulativeSummary();
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Academic Transcript</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cumulative GPA</div>
+        <div class="stat-value">${cumulative.gpa.toFixed(2)}</div>
+        <div class="stat-sub">Overall transcript GPA</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Completed Credits</div>
+        <div class="stat-value">${cumulative.credits}</div>
+        <div class="stat-sub">Completed course credits</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total ECTS</div>
+        <div class="stat-value">${cumulative.ects}</div>
+        <div class="stat-sub">All listed curriculum ECTS</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Transcript Status</div>
+        <div class="stat-value" style="font-size:1.35rem">Active Student</div>
+        <div class="stat-sub">Current academic record</div>
+      </div>
+    </div>
+
+    ${academicRecord.map(section => {
+      const s = calculateSemesterSummary(section);
+
+      return `
+        <div class="card transcript-semester-card">
+          <div class="semester-header">
+            <div>
+              <h3>${section.semester}</h3>
+              <p>${section.period} · ${s.courseCount} courses · ${s.ects} ECTS</p>
+            </div>
+
+            <div class="semester-gpa">
+              <span>Semester GPA</span>
+              <strong>${s.gpa != null ? s.gpa.toFixed(2) : 'In Progress'}</strong>
+            </div>
+          </div>
+
+          <div class="table-wrapper" style="margin-top:1rem">
+            <table>
+              <thead>
+                <tr>
+                  <th>Course Code</th>
+                  <th>Course Name</th>
+                  <th>Z/S</th>
+                  <th>Credit</th>
+                  <th>ECTS</th>
+                  <th>Letter</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                ${section.courses.map(course => `
+                  <tr>
+                    <td><span class="course-code">${course.code}</span></td>
+                    <td><strong>${course.name}</strong></td>
+                    <td>${course.type}</td>
+                    <td>${course.credit}</td>
+                    <td>${course.ects}</td>
+                    <td><strong>${course.letter}</strong></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+function renderAttendance(app) {
+  const currentCourses = academicRecord.find(section => section.semester === '3rd Year Spring').courses;
+
+  const attendance = currentCourses.map((course, index) => {
+    const total = 42;
+    const absent = [2, 0, 4, 1, 3, 0][index] || 0;
+    const rate = Math.round((absent / total) * 100);
+
+    return {
+      ...course,
+      total,
+      absent,
+      rate,
+      status: rate >= 20 ? 'Risk' : rate >= 10 ? 'Warning' : 'Regular'
+    };
+  });
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Attendance Status</h2>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Course Code</th>
+              <th>Course Name</th>
+              <th>Total Hours</th>
+              <th>Absent Hours</th>
+              <th>Absence Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${attendance.map(item => {
+              const cls = getStatusClass(item.status);
+
+              return `
+                <tr>
+                  <td><span class="course-code">${item.code}</span></td>
+                  <td><strong>${item.name}</strong></td>
+                  <td>${item.total}</td>
+                  <td>${item.absent}</td>
+                  <td>${item.rate}%</td>
+                  <td><span class="status-badge ${cls}">${item.status}</span></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderExamCalendar(app) {
+  const exams = [
+    ['2026-05-18', '10:00', 'LCEN353', 'Software Requirement Analysis', 'Midterm', 'B-203'],
+    ['2026-05-20', '13:00', 'LCEN362', 'Web Programming', 'Project Demo', 'Lab-2'],
+    ['2026-05-22', '11:00', 'LCEN376', 'System Analysis and Design', 'READ Presentation', 'B-305'],
+    ['2026-05-27', '09:00', 'LCEN355', 'Computer Graphics', 'Final Project', 'Design Studio'],
+    ['2026-06-02', '14:00', 'LEEN350', 'Image Processing and Lab.', 'Lab Exam', 'Lab-4']
+  ];
 
   app.innerHTML = `
     <div class="page-header">
@@ -1110,201 +924,34 @@ async function renderExamCalendar(app) {
           <thead>
             <tr>
               <th>Date</th>
-              <th>Course</th>
-              <th>Code</th>
+              <th>Time</th>
+              <th>Course Code</th>
+              <th>Course Name</th>
               <th>Assessment</th>
-              <th>Type</th>
-              <th>Weight</th>
+              <th>Room</th>
               <th>Status</th>
             </tr>
           </thead>
 
           <tbody>
-            ${
-              examItems.length === 0
-                ? `
-                  <tr>
-                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">
-                      No exam or assessment dates available.
-                    </td>
-                  </tr>
-                `
-                : examItems.map(item => `
-                  <tr>
-                    <td><strong>${item.due_date}</strong></td>
-                    <td>${item.courseName}</td>
-                    <td><span class="course-code">${item.courseCode}</span></td>
-                    <td>${item.title}</td>
-                    <td><span class="badge badge-${item.type}">${item.type}</span></td>
-                    <td>${item.weight}%</td>
-                    <td>
-                      ${
-                        item.grade != null
-                          ? '<span class="status-badge pass">Completed</span>'
-                          : '<span class="status-badge conditional">Scheduled</span>'
-                      }
-                    </td>
-                  </tr>
-                `).join('')
-            }
+            ${exams.map(exam => `
+              <tr>
+                <td><strong>${exam[0]}</strong></td>
+                <td>${exam[1]}</td>
+                <td><span class="course-code">${exam[2]}</span></td>
+                <td>${exam[3]}</td>
+                <td>${exam[4]}</td>
+                <td>${exam[5]}</td>
+                <td><span class="status-badge conditional">Scheduled</span></td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       </div>
     </div>
   `;
 }
-async function renderTranscript(app) {
-  const res = await apiFetch('/grades/gpa');
-  const data = res.data || {};
-  const details = data.details || [];
 
-  const semesters = {};
-
-  details.forEach(item => {
-    const semester = item.semester || 'Current Semester';
-
-    if (!semesters[semester]) {
-      semesters[semester] = {
-        courses: [],
-        credits: 0,
-        weightedGpa: 0,
-        successful: 0,
-        conditional: 0,
-        atRisk: 0
-      };
-    }
-
-    const status = item.academicStatus || getAcademicStatus(item.average);
-
-    semesters[semester].courses.push(item);
-
-    if (item.gpaPoints != null) {
-      semesters[semester].credits += item.credits;
-      semesters[semester].weightedGpa += item.gpaPoints * item.credits;
-    }
-
-    if (status === 'Successful') semesters[semester].successful += 1;
-    else if (status === 'Conditional Pass') semesters[semester].conditional += 1;
-    else if (status === 'At Risk') semesters[semester].atRisk += 1;
-  });
-
-  const transcriptSections = Object.entries(semesters).map(([semester, info]) => {
-    const semesterGpa =
-      info.credits > 0
-        ? Math.round((info.weightedGpa / info.credits) * 100) / 100
-        : null;
-
-    return `
-      <div class="card transcript-semester-card">
-        <div class="semester-header">
-          <div>
-            <h3>${semester}</h3>
-            <p>${info.courses.length} courses · ${info.credits} credits</p>
-          </div>
-
-          <div class="semester-gpa">
-            <span>Semester GPA</span>
-            <strong>${semesterGpa != null ? semesterGpa.toFixed(2) : '—'}</strong>
-          </div>
-        </div>
-
-        <div class="semester-summary-grid">
-          <div>
-            <span>Successful</span>
-            <strong>${info.successful}</strong>
-          </div>
-
-          <div>
-            <span>Conditional</span>
-            <strong>${info.conditional}</strong>
-          </div>
-
-          <div>
-            <span>At Risk</span>
-            <strong>${info.atRisk}</strong>
-          </div>
-        </div>
-
-        <div class="table-wrapper" style="margin-top:1rem">
-          <table>
-            <thead>
-              <tr>
-                <th>Course</th>
-                <th>Code</th>
-                <th>Credits</th>
-                <th>Average</th>
-                <th>Letter</th>
-                <th>Status</th>
-                <th>GPA Points</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              ${info.courses.map(course => {
-                const status = course.academicStatus || getAcademicStatus(course.average);
-                const statusClass = getStatusClass(status);
-
-                return `
-                  <tr>
-                    <td><strong>${course.courseName}</strong></td>
-                    <td><span class="course-code">${course.courseCode}</span></td>
-                    <td>${course.credits}</td>
-                    <td>${course.average != null ? course.average.toFixed(1) : '—'}</td>
-                    <td><strong>${course.letterGrade}</strong></td>
-                    <td><span class="status-badge ${statusClass}">${status}</span></td>
-                    <td>${course.gpaPoints != null ? course.gpaPoints.toFixed(1) : '—'}</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  app.innerHTML = `
-    <div class="page-header">
-      <h2 class="page-title">Academic Transcript</h2>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Cumulative GPA</div>
-        <div class="stat-value">${data.gpa != null ? data.gpa.toFixed(2) : '—'}</div>
-        <div class="stat-sub">Overall academic performance</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Total Credits</div>
-        <div class="stat-value">${data.totalCredits || 0}</div>
-        <div class="stat-sub">Credit load included</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Transcript Status</div>
-        <div class="stat-value" style="font-size:1.35rem">
-          ${(data.summary?.atRiskCourses || 0) > 0 ? 'Review Required' : 'Good Standing'}
-        </div>
-        <div class="stat-sub">Based on course performance</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Semesters</div>
-        <div class="stat-value">${Object.keys(semesters).length}</div>
-        <div class="stat-sub">Academic periods</div>
-      </div>
-    </div>
-
-    ${
-      details.length === 0
-        ? `
-          <div class="empty-state">
-            <div class="empty-state-icon">📄</div>
-            <p>No transcript records available yet.</p>
-          </div>
-        `
-        : transcriptSections
-    }
-  `;
+function renderGPA(app) {
+  renderSemesterAverages(app);
 }
