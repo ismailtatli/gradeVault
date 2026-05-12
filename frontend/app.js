@@ -154,6 +154,7 @@ function renderView(view) {
   else if (view === 'course-detail') renderCourseDetail(app, currentCourseId);
   else if (view === 'schedule') renderSchedule(app);
   else if (view === 'grades') renderGradeReport(app);
+  else if (view === 'transcript') renderTranscript(app);
   else if (view === 'exams') renderExamCalendar(app);
   else if (view === 'gpa') renderGPA(app);
   else if (view === 'profile') renderProfile(app);
@@ -1150,5 +1151,160 @@ async function renderExamCalendar(app) {
         </table>
       </div>
     </div>
+  `;
+}
+async function renderTranscript(app) {
+  const res = await apiFetch('/grades/gpa');
+  const data = res.data || {};
+  const details = data.details || [];
+
+  const semesters = {};
+
+  details.forEach(item => {
+    const semester = item.semester || 'Current Semester';
+
+    if (!semesters[semester]) {
+      semesters[semester] = {
+        courses: [],
+        credits: 0,
+        weightedGpa: 0,
+        successful: 0,
+        conditional: 0,
+        atRisk: 0
+      };
+    }
+
+    const status = item.academicStatus || getAcademicStatus(item.average);
+
+    semesters[semester].courses.push(item);
+
+    if (item.gpaPoints != null) {
+      semesters[semester].credits += item.credits;
+      semesters[semester].weightedGpa += item.gpaPoints * item.credits;
+    }
+
+    if (status === 'Successful') semesters[semester].successful += 1;
+    else if (status === 'Conditional Pass') semesters[semester].conditional += 1;
+    else if (status === 'At Risk') semesters[semester].atRisk += 1;
+  });
+
+  const transcriptSections = Object.entries(semesters).map(([semester, info]) => {
+    const semesterGpa =
+      info.credits > 0
+        ? Math.round((info.weightedGpa / info.credits) * 100) / 100
+        : null;
+
+    return `
+      <div class="card transcript-semester-card">
+        <div class="semester-header">
+          <div>
+            <h3>${semester}</h3>
+            <p>${info.courses.length} courses · ${info.credits} credits</p>
+          </div>
+
+          <div class="semester-gpa">
+            <span>Semester GPA</span>
+            <strong>${semesterGpa != null ? semesterGpa.toFixed(2) : '—'}</strong>
+          </div>
+        </div>
+
+        <div class="semester-summary-grid">
+          <div>
+            <span>Successful</span>
+            <strong>${info.successful}</strong>
+          </div>
+
+          <div>
+            <span>Conditional</span>
+            <strong>${info.conditional}</strong>
+          </div>
+
+          <div>
+            <span>At Risk</span>
+            <strong>${info.atRisk}</strong>
+          </div>
+        </div>
+
+        <div class="table-wrapper" style="margin-top:1rem">
+          <table>
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Code</th>
+                <th>Credits</th>
+                <th>Average</th>
+                <th>Letter</th>
+                <th>Status</th>
+                <th>GPA Points</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${info.courses.map(course => {
+                const status = course.academicStatus || getAcademicStatus(course.average);
+                const statusClass = getStatusClass(status);
+
+                return `
+                  <tr>
+                    <td><strong>${course.courseName}</strong></td>
+                    <td><span class="course-code">${course.courseCode}</span></td>
+                    <td>${course.credits}</td>
+                    <td>${course.average != null ? course.average.toFixed(1) : '—'}</td>
+                    <td><strong>${course.letterGrade}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>${course.gpaPoints != null ? course.gpaPoints.toFixed(1) : '—'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="page-header">
+      <h2 class="page-title">Academic Transcript</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cumulative GPA</div>
+        <div class="stat-value">${data.gpa != null ? data.gpa.toFixed(2) : '—'}</div>
+        <div class="stat-sub">Overall academic performance</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total Credits</div>
+        <div class="stat-value">${data.totalCredits || 0}</div>
+        <div class="stat-sub">Credit load included</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Transcript Status</div>
+        <div class="stat-value" style="font-size:1.35rem">
+          ${(data.summary?.atRiskCourses || 0) > 0 ? 'Review Required' : 'Good Standing'}
+        </div>
+        <div class="stat-sub">Based on course performance</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Semesters</div>
+        <div class="stat-value">${Object.keys(semesters).length}</div>
+        <div class="stat-sub">Academic periods</div>
+      </div>
+    </div>
+
+    ${
+      details.length === 0
+        ? `
+          <div class="empty-state">
+            <div class="empty-state-icon">📄</div>
+            <p>No transcript records available yet.</p>
+          </div>
+        `
+        : transcriptSections
+    }
   `;
 }

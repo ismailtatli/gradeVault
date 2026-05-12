@@ -87,11 +87,11 @@ function initializeSchema() {
     );
   `);
 
-  seedDefaultStudent();
+  seedDemoStudents();
   saveDb();
 }
 
-function seedDefaultStudent() {
+function seedDemoStudents() {
   const checkStmt = db.prepare('SELECT COUNT(*) AS count FROM students');
   checkStmt.step();
   const result = checkStmt.getAsObject();
@@ -99,39 +99,99 @@ function seedDefaultStudent() {
 
   if (result.count > 0) return;
 
-  db.run(`
-    INSERT INTO students (
-      full_name,
-      student_number,
-      department,
-      university,
-      class_year,
-      advisor,
-      email
-    ) VALUES (
-      'Ismail Tatlı',
-      '202600001',
-      'Computer Engineering',
-      'Istanbul Arel University',
-      '3rd Year',
-      'Academic Advisor',
-      'ismailtatli99@gmail.com'
-    );
-  `);
+  const students = [
+    {
+      fullName: 'Ismail Tatlı',
+      studentNumber: '202600001',
+      department: 'Computer Engineering',
+      university: 'Istanbul Arel University',
+      classYear: '3rd Year',
+      advisor: 'Academic Advisor',
+      email: 'ismailtatli99@gmail.com',
+      password: '123456'
+    },
+    {
+      fullName: 'Ayşe Yılmaz',
+      studentNumber: '202600002',
+      department: 'Software Engineering',
+      university: 'Istanbul Arel University',
+      classYear: '2nd Year',
+      advisor: 'Dr. Elif Demir',
+      email: 'ayse.student@gradevault.edu',
+      password: '123456'
+    },
+    {
+      fullName: 'Mehmet Kaya',
+      studentNumber: '202600003',
+      department: 'Management Information Systems',
+      university: 'Istanbul Arel University',
+      classYear: '4th Year',
+      advisor: 'Dr. Murat Aksoy',
+      email: 'mehmet.student@gradevault.edu',
+      password: '123456'
+    }
+  ];
 
-  db.run(`
-    INSERT INTO users (
-      student_id,
-      email,
-      password,
-      role
-    ) VALUES (
-      1,
-      'ismailtatli99@gmail.com',
-      '123456',
-      'student'
-    );
-  `);
+  students.forEach(student => {
+    const studentStmt = db.prepare(`
+      INSERT INTO students (
+        full_name,
+        student_number,
+        department,
+        university,
+        class_year,
+        advisor,
+        email
+      ) VALUES (
+        $fullName,
+        $studentNumber,
+        $department,
+        $university,
+        $classYear,
+        $advisor,
+        $email
+      )
+    `);
+
+    studentStmt.run({
+      $fullName: student.fullName,
+      $studentNumber: student.studentNumber,
+      $department: student.department,
+      $university: student.university,
+      $classYear: student.classYear,
+      $advisor: student.advisor,
+      $email: student.email
+    });
+
+    studentStmt.free();
+
+    const idStmt = db.prepare('SELECT last_insert_rowid() AS id');
+    idStmt.step();
+    const idResult = idStmt.getAsObject();
+    idStmt.free();
+
+    const userStmt = db.prepare(`
+      INSERT INTO users (
+        student_id,
+        email,
+        password,
+        role
+      ) VALUES (
+        $studentId,
+        $email,
+        $password,
+        'student'
+      )
+    `);
+
+    userStmt.run({
+      $studentId: idResult.id,
+      $email: student.email,
+      $password: student.password
+    });
+
+    userStmt.free();
+  });
 }
 
 module.exports = { getDb, saveDb };

@@ -758,3 +758,84 @@ main {
 .table-wrapper table th {
   white-space: nowrap;
 }
+.transcript-semester-card {
+  margin-bottom: 1.25rem;
+}
+
+.semester-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.semester-header h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.semester-header p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.semester-gpa {
+  text-align: right;
+}
+
+.semester-gpa span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.semester-gpa strong {
+  font-size: 1.7rem;
+  color: var(--primary);
+}
+
+.semester-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.semester-summary-grid div {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.semester-summary-grid span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.semester-summary-grid strong {
+  font-size: 1.35rem;
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .semester-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .semester-gpa {
+    text-align: left;
+  }
+
+  .semester-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
